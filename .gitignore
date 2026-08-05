@@ -18,6 +18,8 @@ HELP.md
 *.iws
 *.iml
 *.ipr
+### Variables de entorno
+.env
 
 ### NetBeans ###
 /nbproject/private/
