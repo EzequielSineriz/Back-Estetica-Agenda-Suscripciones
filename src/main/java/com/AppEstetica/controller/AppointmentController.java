@@ -3,9 +3,9 @@ package com.AppEstetica.controller;
 
 import com.AppEstetica.dto.request.AppointmentRequestDTO;
 import com.AppEstetica.dto.response.AppointmentResponseDTO;
-import com.AppEstetica.service.AppointmentService;
-import com.AppEstetica.service.ClientService;
-import com.AppEstetica.utils.AppointmentMapper;
+import com.AppEstetica.service.Turnos.AppointmentService;
+import com.AppEstetica.service.Cliente.ClientService;
+import com.AppEstetica.utils.Mappers.AppointmentMapper;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;

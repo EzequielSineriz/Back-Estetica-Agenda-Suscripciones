@@ -17,4 +17,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // Para autenticación con JWT
     Optional<User> findByEmail(String email);
 
+    boolean existsByEmail(String email);
+
 }

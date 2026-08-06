@@ -2,7 +2,7 @@ package com.AppEstetica.config;
 
 import com.AppEstetica.entities.User;
 import com.AppEstetica.repository.UserRepository;
-import com.AppEstetica.service.JwtService;
+import com.AppEstetica.service.Security.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

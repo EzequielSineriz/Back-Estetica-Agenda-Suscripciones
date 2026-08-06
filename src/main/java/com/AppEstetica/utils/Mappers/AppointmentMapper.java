@@ -1,4 +1,4 @@
-package com.AppEstetica.utils;
+package com.AppEstetica.utils.Mappers;
 
 import com.AppEstetica.dto.request.AppointmentRequestDTO;
 import com.AppEstetica.dto.response.AppointmentResponseDTO;

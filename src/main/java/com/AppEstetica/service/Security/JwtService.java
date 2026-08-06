@@ -1,4 +1,4 @@
-package com.AppEstetica.service;
+package com.AppEstetica.service.Security;
 
 import com.AppEstetica.entities.User;
 import io.jsonwebtoken.Jwts;

@@ -25,9 +25,11 @@ public final class Token {
     private TokenType tokenType = TokenType.BEARER;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean isRevoked;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean isExpired;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -35,6 +37,6 @@ public final class Token {
     private User user;
 
     public enum TokenType {
-        BEARER
+        REFRESH, BEARER
     }
 }

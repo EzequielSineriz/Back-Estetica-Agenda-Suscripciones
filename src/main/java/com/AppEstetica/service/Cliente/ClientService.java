@@ -1,4 +1,4 @@
-package com.AppEstetica.service;
+package com.AppEstetica.service.Cliente;
 
 import com.AppEstetica.advice.ResourceNotFoundException;
 import com.AppEstetica.dto.request.ClientRequestDTO;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class ClientService {
+public class ClientService implements IClientService{
     private final ClientRepository repo;
 
 

@@ -3,7 +3,7 @@ package com.AppEstetica.controller.auth;
 import com.AppEstetica.dto.request.AuthRequest;
 import com.AppEstetica.dto.request.RegisterRequest;
 import com.AppEstetica.dto.response.TokenResponse;
-import com.AppEstetica.service.AuthService;
+import com.AppEstetica.service.Security.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;

@@ -1,20 +1,25 @@
-package com.AppEstetica.service;
+package com.AppEstetica.service.Turnos;
 
+import com.AppEstetica.advice.BadRequestException;
+import com.AppEstetica.advice.ConflictException;
 import com.AppEstetica.advice.ResourceNotFoundException;
 import com.AppEstetica.dto.request.AppointmentRequestDTO;
 import com.AppEstetica.entities.Appointment;
 import com.AppEstetica.entities.AppointmentStatus;
 import com.AppEstetica.entities.Client;
 import com.AppEstetica.repository.AppointmentRepository;
+import com.AppEstetica.service.Cliente.ClientService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class AppointmentService {
+public class AppointmentService implements IAppointmentService {
     private final AppointmentRepository repo;
     private final ClientService clientService;
 
@@ -26,6 +31,8 @@ public class AppointmentService {
     public Appointment update(Long id, AppointmentRequestDTO dto) {
         Appointment existing = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
+
+        validarHorarioDisponible(dto.getDate(), dto.getTime(), dto.getEndTime(), id);
 
         existing.setDate(dto.getDate());
         existing.setTime(dto.getTime());
@@ -47,6 +54,8 @@ public class AppointmentService {
 
     @Transactional
     public Appointment create(AppointmentRequestDTO dto) {
+        validarHorarioDisponible(dto.getDate(), dto.getTime(), dto.getEndTime(), null);
+
         Client client = clientService.findById(dto.getClientId());
 
         Appointment appointment = Appointment.builder()
@@ -55,7 +64,7 @@ public class AppointmentService {
                 .endTime(dto.getEndTime())
                 .service(dto.getService())
                 .client(client)
-                .status(AppointmentStatus.PENDING) // Forzamos estado inicial
+                .status(AppointmentStatus.PENDING)
                 .build();
 
         return repo.save(appointment);
@@ -73,5 +82,15 @@ public class AppointmentService {
         }
 
         return repo.save(app);
+    }
+
+
+    private void validarHorarioDisponible(LocalDate date, LocalTime time, LocalTime endTime, Long excludeId) {
+        if (!time.isBefore(endTime)) {
+            throw new BadRequestException("La hora de inicio debe ser anterior a la hora de fin");
+        }
+        if (repo.existsOverlapping(date, time, endTime, excludeId)) {
+            throw new ConflictException("Ya existe un turno que se superpone con ese horario");
+        }
     }
 }

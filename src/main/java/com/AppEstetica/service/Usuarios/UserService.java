@@ -1,6 +1,7 @@
-package com.AppEstetica.service;
+package com.AppEstetica.service.Usuarios;
 
 
+import com.AppEstetica.advice.ResourceNotFoundException;
 import com.AppEstetica.entities.Rol;
 import com.AppEstetica.entities.User;
 import com.AppEstetica.repository.UserRepository;
@@ -23,7 +24,7 @@ public class UserService {
 
     public User findById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
     }
 
     public User findByUsername(String username) {
@@ -34,7 +35,7 @@ public class UserService {
 
     // -------------------- CREATE --------------------
 
-    public User createUser(String username, String rawPassword, Set<Rol> rols) {
+    public User createUser(String username, String email,String rawPassword, Set<Rol> rols) {
 
         if (userRepository.existsByUsername(username)) {
             throw new RuntimeException("Username already exists: " + username);
@@ -42,6 +43,7 @@ public class UserService {
 
         User user = User.builder()
                 .username(username)
+                .email(email)
                 .password(passwordEncoder.encode(rawPassword))
                 .roles(rols)
                 .build();
