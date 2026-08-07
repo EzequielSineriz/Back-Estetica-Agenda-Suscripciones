@@ -43,7 +43,7 @@ public class SecurityConfig {
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/api/pagos/webhook").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/cursos").permitAll()
-                .anyRequest().permitAll()
+                .anyRequest().authenticated()
         );
 
         http.authenticationProvider(authenticationProvider)

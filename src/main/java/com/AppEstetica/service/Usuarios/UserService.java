@@ -1,6 +1,7 @@
 package com.AppEstetica.service.Usuarios;
 
 
+import com.AppEstetica.advice.ConflictException;
 import com.AppEstetica.advice.ResourceNotFoundException;
 import com.AppEstetica.entities.Rol;
 import com.AppEstetica.entities.User;
@@ -29,7 +30,7 @@ public class UserService {
 
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found with username " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username " + username));
     }
 
 
@@ -38,8 +39,12 @@ public class UserService {
     public User createUser(String username, String email,String rawPassword, Set<Rol> rols) {
 
         if (userRepository.existsByUsername(username)) {
-            throw new RuntimeException("Username already exists: " + username);
+            throw new ConflictException("Username already exists: " + username);
         }
+        if (userRepository.existsByEmail(email)) { // 👈 de paso, sumale este chequeo que falta
+            throw new ConflictException("Email already exists: " + email);
+        }
+
 
         User user = User.builder()
                 .username(username)
@@ -59,7 +64,7 @@ public class UserService {
 
         if (!user.getUsername().equals(newUsername)
                 && userRepository.existsByUsername(newUsername)) {
-            throw new RuntimeException("Username already taken: " + newUsername);
+            throw new ConflictException("Username already taken: " + newUsername);
         }
 
         user.setUsername(newUsername);
@@ -80,7 +85,7 @@ public class UserService {
 
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new RuntimeException("User not found with id " + id);
+            throw new ResourceNotFoundException("User not found with id " + id);
         }
         userRepository.deleteById(id);
     }

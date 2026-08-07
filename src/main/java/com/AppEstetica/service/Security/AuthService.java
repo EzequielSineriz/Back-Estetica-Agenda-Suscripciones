@@ -1,6 +1,7 @@
 package com.AppEstetica.service.Security;
 
 import com.AppEstetica.advice.ConflictException;
+import com.AppEstetica.advice.InvalidTokenException;
 import com.AppEstetica.advice.ResourceNotFoundException;
 import com.AppEstetica.dto.request.AuthRequest;
 import com.AppEstetica.dto.request.RegisterRequest;
@@ -106,31 +107,30 @@ public class AuthService {
         }
     }
 
-    public TokenResponse refreshToken(@NotNull final String authentication) {
-
-        if (authentication == null || !authentication.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("Invalid auth header");
-        }
-        final String refreshToken = authentication.substring(7);
-        final String userEmail = jwtService.extractUsername(refreshToken);
-        if (userEmail == null) {
-            throw new BadCredentialsException("Refresh token inválido o expirado");
+    public TokenResponse refreshToken(final String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new InvalidTokenException("Header de autorización inválido");
         }
 
-        final User user = this.repository.findByEmail(userEmail).orElseThrow();
-        final boolean isTokenValid = jwtService.isTokenValid(refreshToken, user);
-        if (!isTokenValid) {
-            return null;
+        final String refreshToken = authorizationHeader.substring(7);
+
+        final Token storedToken = tokenRepository.findByToken(refreshToken)
+                .filter(t -> !t.getIsRevoked() && !t.getIsExpired())
+                .orElseThrow(() -> new InvalidTokenException("Refresh token inválido o revocado"));
+
+        final User user = storedToken.getUser();
+
+        if (!jwtService.isTokenValid(refreshToken, user)) {
+            throw new InvalidTokenException("Refresh token inválido o expirado");
         }
 
-        final String accessToken = jwtService.generateToken(user);
+        final String newAccessToken = jwtService.generateToken(user);
         revokeAllUserTokens(user);
-        saveUserToken(user, accessToken, Token.TokenType.BEARER);
+        saveUserToken(user, newAccessToken, Token.TokenType.BEARER);
         saveUserToken(user, refreshToken, Token.TokenType.REFRESH);
 
-        return new TokenResponse(accessToken, refreshToken,user.getUsername(),
-                user.getEmail(),
-                user.getRoles());
+        return new TokenResponse(newAccessToken, refreshToken, user.getUsername(),
+                user.getEmail(), user.getRoles());
     }
 
 }

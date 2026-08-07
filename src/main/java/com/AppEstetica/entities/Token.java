@@ -26,11 +26,11 @@ public final class Token {
 
     @Column(nullable = false)
     @Builder.Default
-    private Boolean isRevoked;
+    private Boolean isRevoked = false;
 
     @Column(nullable = false)
     @Builder.Default
-    private Boolean isExpired;
+    private Boolean isExpired = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

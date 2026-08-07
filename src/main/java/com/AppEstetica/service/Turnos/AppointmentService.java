@@ -30,7 +30,7 @@ public class AppointmentService implements IAppointmentService {
     @Transactional
     public Appointment update(Long id, AppointmentRequestDTO dto) {
         Appointment existing = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
 
         validarHorarioDisponible(dto.getDate(), dto.getTime(), dto.getEndTime(), id);
 
