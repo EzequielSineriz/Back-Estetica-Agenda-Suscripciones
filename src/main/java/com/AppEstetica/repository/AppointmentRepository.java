@@ -12,6 +12,7 @@ import java.util.List;
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     List<Appointment> findByClientId(Long clientId);
 
+
     @Query("SELECT a FROM Appointment a JOIN FETCH a.client c WHERE c.id = :clientId")
     List<Appointment> findByClientIdWithClient(@Param("clientId") Long clientId);
 

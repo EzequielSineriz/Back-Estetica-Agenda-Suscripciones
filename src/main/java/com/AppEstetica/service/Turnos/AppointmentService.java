@@ -27,6 +27,12 @@ public class AppointmentService implements IAppointmentService {
         return repo.findAll();
     }
 
+    public Appointment getById(Long id) {
+        return repo.findById(id)
+                .orElseThrow(() ->new ResourceNotFoundException("El turno con el " + id + " No encontrado"));
+
+    }
+
     @Transactional
     public Appointment update(Long id, AppointmentRequestDTO dto) {
         Appointment existing = repo.findById(id)

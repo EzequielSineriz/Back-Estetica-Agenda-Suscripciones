@@ -3,11 +3,13 @@ package com.AppEstetica.controller;
 
 import com.AppEstetica.dto.request.AppointmentRequestDTO;
 import com.AppEstetica.dto.response.AppointmentResponseDTO;
+import com.AppEstetica.entities.Appointment;
 import com.AppEstetica.service.Turnos.AppointmentService;
 import com.AppEstetica.service.Cliente.ClientService;
 import com.AppEstetica.utils.Mappers.AppointmentMapper;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +26,15 @@ public class AppointmentController {
         return service.getAll().stream()
                 .map(AppointmentMapper::toDTO)
                 .toList();
+    }
+
+    @GetMapping("/{id}")
+    public AppointmentResponseDTO getAppointmentsId(
+            @PathVariable Long id
+    ){
+        Appointment appointment = service.getById(id);
+        AppointmentResponseDTO dto = AppointmentMapper.toDTO(appointment);
+        return ResponseEntity.ok(dto).getBody();
     }
 
     @PostMapping
