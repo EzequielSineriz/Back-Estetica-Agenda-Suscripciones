@@ -2,19 +2,17 @@ package com.AppEstetica.entities;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 public final class Token {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true)
@@ -22,6 +20,7 @@ public final class Token {
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
+    @Column(name = "token_type", length = 50)
     private TokenType tokenType = TokenType.BEARER;
 
     @Column(nullable = false)
