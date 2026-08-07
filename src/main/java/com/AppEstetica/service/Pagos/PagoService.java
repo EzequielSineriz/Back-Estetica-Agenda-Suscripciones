@@ -2,10 +2,8 @@ package com.AppEstetica.service.Pagos;
 
 import com.AppEstetica.advice.ResourceNotFoundException;
 import com.AppEstetica.dto.response.PreferenciaPagoResponseDTO;
-import com.AppEstetica.entities.Curso;
-import com.AppEstetica.entities.EstadoPago;
-import com.AppEstetica.entities.InscripcionCurso;
-import com.AppEstetica.entities.User;
+import com.AppEstetica.entities.*;
+import com.AppEstetica.repository.AppointmentRepository;
 import com.AppEstetica.repository.CursoRespository;
 import com.AppEstetica.repository.InscripcionCursoRepository;
 import com.AppEstetica.repository.UserRepository;
@@ -33,6 +31,7 @@ public class PagoService {
 
     private final CursoRespository cursoRepository;
     private final InscripcionCursoRepository inscripcionRepository;
+    private final AppointmentRepository appointmentRepository;
     private final UserRepository userRepository;
 
     @Value("${mercadopago.access-token}")
@@ -49,6 +48,43 @@ public class PagoService {
         MercadoPagoConfig.setAccessToken(accessToken);
     }
 
+    //Para el pago de turnos.....
+    public PreferenciaPagoResponseDTO crearPreferenciaTurno(Long appointmentId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Turno no encontrado"));
+
+        try {
+            PreferenceItemRequest item = PreferenceItemRequest.builder()
+                    .title("Seña Turno - " + appointment.getService())
+                    .quantity(1)
+                    .unitPrice(appointment.getMontoSena()) // Cobramos solo la seña
+                    .currencyId("ARS")
+                    .build();
+
+            PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest.builder()
+                    .success(frontendBaseUrl + "/turnos/pago-exitoso")
+                    .pending(frontendBaseUrl + "/turnos/pago-pendiente")
+                    .failure(frontendBaseUrl + "/turnos/pago-fallido")
+                    .build();
+
+            PreferenceRequest request = PreferenceRequest.builder()
+                    .items(List.of(item))
+                    .backUrls(backUrls)
+                    .autoReturn("approved")
+                    .externalReference("TURNO_" + appointment.getId()) // 👈 Identificamos que es un turno
+                    .notificationUrl(backendBaseUrl + "/api/pagos/webhook")
+                    .build();
+
+            Preference preference = new PreferenceClient().create(request);
+
+            return new PreferenciaPagoResponseDTO(preference.getInitPoint(), appointment.getId());
+
+        } catch (MPApiException | MPException e) {
+            throw new RuntimeException("Error creando preferencia de pago para el turno", e);
+        }
+    }
+
+    // Para el pago de cursos ...
     public PreferenciaPagoResponseDTO crearPreferencia(Long cursoId, Long usuarioId) {
         Curso curso = cursoRepository.findById(cursoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Curso no encontrado"));

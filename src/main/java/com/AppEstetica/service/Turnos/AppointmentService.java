@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -64,13 +65,20 @@ public class AppointmentService implements IAppointmentService {
 
         Client client = clientService.findById(dto.getClientId());
 
+        BigDecimal precioTotal = dto.getPrecioTotal();
+        BigDecimal sena = dto.getMontoSena() != null ?
+                dto.getMontoSena() : precioTotal.multiply(new BigDecimal("0.30"));
+
         Appointment appointment = Appointment.builder()
                 .date(dto.getDate())
                 .time(dto.getTime())
                 .endTime(dto.getEndTime())
                 .service(dto.getService())
                 .client(client)
-                .status(AppointmentStatus.PENDING)
+                .precioTotal(precioTotal)
+                .montoSena(sena)
+                .montoPagado(BigDecimal.ZERO)
+                .status(Appointment.AppointmentStatus.PENDING_PAYMENT)
                 .build();
 
         return repo.save(appointment);
@@ -79,11 +87,12 @@ public class AppointmentService implements IAppointmentService {
     @Transactional
     public Appointment completeAppointment(Long appointmentId) {
         Appointment app = repo.findById(appointmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Turno no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Turno no encontrado con ID: " + appointmentId));
 
-        // Evitamos duplicar stats si ya estaba completado
-        if (app.getStatus() != AppointmentStatus.COMPLETED) {
-            app.setStatus(AppointmentStatus.COMPLETED);
+        // Referenciamos el enum interno usando Appointment.AppointmentStatus
+        if (app.getStatus() != Appointment.AppointmentStatus.COMPLETED) {
+            app.getStatus(); // Opcional
+            app.setStatus(Appointment.AppointmentStatus.COMPLETED);
             clientService.updateVisitStats(app.getClient().getId());
         }
 
@@ -99,4 +108,25 @@ public class AppointmentService implements IAppointmentService {
             throw new ConflictException("Ya existe un turno que se superpone con ese horario");
         }
     }
-}
+
+
+        @Transactional
+        public void registrarPagoSena(Long appointmentId, BigDecimal montoAbonado) {
+            Appointment appointment = repo.findById(appointmentId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Turno no encontrado con ID: " + appointmentId));
+
+            appointment.setMontoPagado(appointment.getMontoPagado().add(montoAbonado));
+
+            // Si cubrió al menos el monto de la seña, pasa a RESERVED
+            if (appointment.getMontoPagado().compareTo(appointment.getMontoSena()) >= 0) {
+                appointment.setStatus(Appointment.AppointmentStatus.RESERVED);
+            }
+
+            // Si pagó el 100%, pasa a CONFIRMED
+            if (appointment.getMontoPagado().compareTo(appointment.getPrecioTotal()) >= 0) {
+                appointment.setStatus(Appointment.AppointmentStatus.CONFIRMED);
+            }
+
+            repo.save(appointment);
+        }
+    }
