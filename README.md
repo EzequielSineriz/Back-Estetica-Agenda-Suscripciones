@@ -108,9 +108,9 @@ La API queda disponible en `http://localhost:8080`.
 - [ ] Notificaciones de confirmación de pago (webhook de MercadoPago).
 
 
-### Mejoras Proximas
+## Mejoras Proximas
 
-## A. Dominio de Negocio (Estética & Salud)
+### A. Dominio de Negocio (Estética & Salud)
 - Historial Clínico / Ficha de Tratamientos:
 
 En estética es fundamental llevar una ficha técnica por cliente: tipo de piel, alergias, observaciones de sesiones anteriores, fotos del "antes y después".
@@ -123,13 +123,13 @@ La mayor pérdida de dinero en estética son los turnos que se cancelan a últim
 
 Control de insumos utilizados en los tratamientos (cremas, ampollas, etc.) y productos de reventa.
 
-## B. Pagos y Finanzas
+### B. Pagos y Finanzas
 - Señas / Pagos Parciales para Turnos:
 
 Vincular la creación del turno con la pasarela de pagos para requerir una seña previa antes de confirmar el turno en estado RESERVED o CONFIRMED.
 
 
-## C. Buenas Prácticas en la Arquitectura (Código)
+### C. Buenas Prácticas en la Arquitectura (Código)
 - Manejo de Errores Globales:
 
 Tienes excepciones como BadRequestException, ConflictException, etc. Asegúrate de que el GlobalExceptionHandler devuelva estructuras DTO estandarizadas para que tu frontend/Postman reciba mensajes de error claros (código HTTP + mensaje estructurado).
