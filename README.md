@@ -106,3 +106,34 @@ La API queda disponible en `http://localhost:8080`.
 - [ ] Integración de pagos con **MercadoPago** (Checkout Bricks) — soporta Visa, Mastercard y tarjetas de cualquier banco emisor a través de una única integración.
 - [ ] Relación `Usuario` ↔ `Curso` vía entidad de inscripción, con estado de pago.
 - [ ] Notificaciones de confirmación de pago (webhook de MercadoPago).
+
+
+### Mejoras Proximas
+
+## A. Dominio de Negocio (Estética & Salud)
+- Historial Clínico / Ficha de Tratamientos:
+
+En estética es fundamental llevar una ficha técnica por cliente: tipo de piel, alergias, observaciones de sesiones anteriores, fotos del "antes y después".
+
+- Recordatorios Automáticos (WhatsApp / Email):
+
+La mayor pérdida de dinero en estética son los turnos que se cancelan a último momento. Agregar un servicio (ej. vía Twilio o WhatsApp Cloud API) para enviar recordatorios automáticos 24hs antes.
+
+- Gestión de Stock / Productos:
+
+Control de insumos utilizados en los tratamientos (cremas, ampollas, etc.) y productos de reventa.
+
+## B. Pagos y Finanzas
+- Señas / Pagos Parciales para Turnos:
+
+Vincular la creación del turno con la pasarela de pagos para requerir una seña previa antes de confirmar el turno en estado RESERVED o CONFIRMED.
+
+
+## C. Buenas Prácticas en la Arquitectura (Código)
+- Manejo de Errores Globales:
+
+Tienes excepciones como BadRequestException, ConflictException, etc. Asegúrate de que el GlobalExceptionHandler devuelva estructuras DTO estandarizadas para que tu frontend/Postman reciba mensajes de error claros (código HTTP + mensaje estructurado).
+
+- Auditoría de Entidades:
+
+Agregar anotaciones JPA de auditoría (@CreatedDate, @LastModifiedDate, @CreatedBy) en entidades como Appointment e InscripcionCurso para saber exactamente cuándo se crearon o modificaron los registros.
