@@ -17,21 +17,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findByClientIdWithClient(@Param("clientId") Long clientId);
 
 
-    // Se solapan si: mi inicio es antes de que termine el otro Y mi fin es después de que empiece el otro.
-    // Excluye turnos cancelados (esos no ocupan horario) y, en un update, excluye el propio turno.
-    @Query("""
-            SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END
-            FROM Appointment a
-            WHERE a.date = :date
-              AND a.status <> com.AppEstetica.entities.AppointmentStatus.CANCELLED
-              AND (:excludeId IS NULL OR a.id <> :excludeId)
-              AND a.time < :endTime
-              AND a.endTime > :time
-            """)
+    @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.date = :date " +
+            "AND a.time < :endTime AND a.endTime > :time " +
+            "AND a.status <> com.AppEstetica.entities.Appointment.AppointmentStatus.CANCELLED") // 👈 Agregado .Appointment.
     boolean existsOverlapping(
             @Param("date") LocalDate date,
             @Param("time") LocalTime time,
-            @Param("endTime") LocalTime endTime,
-            @Param("excludeId") Long excludeId
+            @Param("endTime") LocalTime endTime
     );
 }

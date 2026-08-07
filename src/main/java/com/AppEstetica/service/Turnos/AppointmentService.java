@@ -104,7 +104,7 @@ public class AppointmentService implements IAppointmentService {
         if (!time.isBefore(endTime)) {
             throw new BadRequestException("La hora de inicio debe ser anterior a la hora de fin");
         }
-        if (repo.existsOverlapping(date, time, endTime, excludeId)) {
+        if (repo.existsOverlapping(date, time, endTime)) {
             throw new ConflictException("Ya existe un turno que se superpone con ese horario");
         }
     }
