@@ -1,6 +1,6 @@
 package com.AppEstetica.advice;
 
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,33 +13,37 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleNotFound(ResourceNotFoundException ex) {
+        log.warn("Recurso no encontrado: {}", ex.getMessage());
         return build(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<Map<String, Object>> handleConflict(ConflictException ex) {
+        log.warn("Conflicto: {}", ex.getMessage());
         return build(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<Map<String, Object>> handleBadRequest(BadRequestException ex) {
+        log.warn("Bad request: {}", ex.getMessage());
         return build(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler({InvalidTokenException.class, BadCredentialsException.class})
     public ResponseEntity<Map<String, Object>> handleUnauthorized(RuntimeException ex) {
+        log.warn("No autorizado: {}", ex.getMessage());
         return build(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
-    // Cuando la constraint UNIQUE de la base salta antes que nuestro chequeo manual
-    // (ej: dos requests simultáneos registrándose con el mismo email)
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>> handleDataIntegrity(DataIntegrityViolationException ex) {
+        log.warn("Violación de integridad de datos: {}", ex.getMessage());
         return build(HttpStatus.CONFLICT, "El recurso ya existe o viola una restricción de datos");
     }
 
@@ -52,6 +56,7 @@ public class GlobalExceptionHandler {
                 errors.put(error.getField(), error.getDefaultMessage())
         );
 
+        log.warn("Error de validación: {}", errors);
         response.put("timestamp", LocalDateTime.now());
         response.put("errors", errors);
         response.put("status", HttpStatus.BAD_REQUEST.value());
@@ -59,9 +64,9 @@ public class GlobalExceptionHandler {
     }
 
     // Red de seguridad: cualquier excepción no mapeada explícitamente cae acá.
-    // Nunca devolvemos ex.getMessage() crudo -> podría filtrar detalles internos (queries, paths, etc).
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
+        log.error("Error inesperado no mapeado", ex); // 👈 el fix clave: logueamos el stack trace completo
         return build(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error inesperado");
     }
 
