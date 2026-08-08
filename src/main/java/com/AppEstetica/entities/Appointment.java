@@ -44,15 +44,15 @@ public class Appointment extends AuditableEntity {
     private BigDecimal montoPagado;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 30)
+    @Column(name= "status", length = 30)
     private AppointmentStatus status;
 
     public enum AppointmentStatus {
-        PENDING_PAYMENT, // Esperando el pago de la seña
+        PENDING, // Esperando el pago de la seña
         RESERVED,        // Seña pagada / Turno reservado
         CONFIRMED,       // Totalmente pagado o confirmado por admin
         CANCELLED,       // Cancelado
-        COMPLETED        // Servicio realizado
+        COMPLETED      // Servicio realizado
     }
 
 }

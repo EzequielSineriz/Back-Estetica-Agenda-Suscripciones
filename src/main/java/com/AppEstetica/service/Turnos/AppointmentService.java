@@ -5,7 +5,6 @@ import com.AppEstetica.advice.ConflictException;
 import com.AppEstetica.advice.ResourceNotFoundException;
 import com.AppEstetica.dto.request.AppointmentRequestDTO;
 import com.AppEstetica.entities.Appointment;
-import com.AppEstetica.entities.AppointmentStatus;
 import com.AppEstetica.entities.Client;
 import com.AppEstetica.repository.AppointmentRepository;
 import com.AppEstetica.service.Cliente.ClientService;
@@ -37,17 +36,24 @@ public class AppointmentService implements IAppointmentService {
     @Transactional
     public Appointment update(Long id, AppointmentRequestDTO dto) {
         Appointment existing = repo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Turno no encontrado con ID: " + id));
 
+        // Pasamos 'id' para excluir este turno de la validación al editar
         validarHorarioDisponible(dto.getDate(), dto.getTime(), dto.getEndTime(), id);
+
+        BigDecimal precioTotal = dto.getPrecioTotal();
+        BigDecimal sena = dto.getMontoSena() != null ?
+                dto.getMontoSena() : precioTotal.multiply(new BigDecimal("0.10"));
 
         existing.setDate(dto.getDate());
         existing.setTime(dto.getTime());
-        existing.setService(dto.getService());
         existing.setEndTime(dto.getEndTime());
+        existing.setService(dto.getService());
+        existing.setPrecioTotal(precioTotal);
+        existing.setMontoSena(sena);
         existing.setClient(clientService.findById(dto.getClientId()));
 
-        return existing;
+        return repo.save(existing);
     }
 
     public void delete(Long id) {
@@ -78,7 +84,7 @@ public class AppointmentService implements IAppointmentService {
                 .precioTotal(precioTotal)
                 .montoSena(sena)
                 .montoPagado(BigDecimal.ZERO)
-                .status(Appointment.AppointmentStatus.PENDING_PAYMENT)
+                .status(Appointment.AppointmentStatus.PENDING)
                 .build();
 
         return repo.save(appointment);
@@ -104,7 +110,13 @@ public class AppointmentService implements IAppointmentService {
         if (!time.isBefore(endTime)) {
             throw new BadRequestException("La hora de inicio debe ser anterior a la hora de fin");
         }
-        if (repo.existsOverlapping(date, time, endTime)) {
+
+        // Si excludeId es null, se verifica para la creación. Si tiene valor, se usa para edición.
+        boolean overlaps = (excludeId == null)
+                ? repo.existsOverlapping(date, time, endTime)
+                : repo.existsOverlappingExcludingId(date, time, endTime, excludeId);
+
+        if (overlaps) {
             throw new ConflictException("Ya existe un turno que se superpone con ese horario");
         }
     }
@@ -129,4 +141,6 @@ public class AppointmentService implements IAppointmentService {
 
             repo.save(appointment);
         }
+
+
     }

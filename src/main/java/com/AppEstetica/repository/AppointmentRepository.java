@@ -25,4 +25,15 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("time") LocalTime time,
             @Param("endTime") LocalTime endTime
     );
+
+    @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.date = :date " +
+            "AND a.time < :endTime AND a.endTime > :time " +
+            "AND a.id <> :excludeId " +
+            "AND a.status <> com.AppEstetica.entities.Appointment.AppointmentStatus.CANCELLED")
+    boolean existsOverlappingExcludingId(
+            @Param("date") LocalDate date,
+            @Param("time") LocalTime time,
+            @Param("endTime") LocalTime endTime,
+            @Param("excludeId") Long excludeId
+    );
 }
