@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.data.annotation.TypeAlias;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "cursos")
@@ -29,4 +30,8 @@ public class Curso extends AuditableEntity{
 
     @Column(nullable = false)
     private Boolean activo;
+
+    @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("orden ASC")
+    private List<ModuloCurso> modulos;
 }
