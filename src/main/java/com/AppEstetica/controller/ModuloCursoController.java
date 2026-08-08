@@ -1,5 +1,6 @@
 package com.AppEstetica.controller;
 
+import com.AppEstetica.advice.ForbiddenException;
 import com.AppEstetica.dto.request.ModuloCursoRequestDTO;
 import com.AppEstetica.dto.response.ModuloCursoResponseDTO;
 import com.AppEstetica.entities.EstadoPago;
