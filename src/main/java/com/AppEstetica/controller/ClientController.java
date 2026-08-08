@@ -7,6 +7,7 @@ import com.AppEstetica.entities.Client;
 import com.AppEstetica.service.Cliente.ClientService;
 import com.AppEstetica.utils.Mappers.AppointmentMapper;
 import com.AppEstetica.utils.Mappers.ClientMapper;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,7 @@ public class ClientController {
     private final ClientService service;
 
 
+    @Operation(summary = "Listar todos los clientes")
     @GetMapping
     public List<ClientResponseDTO> getClients() {
         return service.getAll().stream()
@@ -27,6 +29,7 @@ public class ClientController {
                 .toList();
     }
 
+    @Operation(summary = "Crear un cliente nuevo")
     @PostMapping
     public ClientResponseDTO createClient(@Valid @RequestBody ClientRequestDTO dto) {
         var client = ClientMapper.toEntity(dto);
@@ -34,6 +37,7 @@ public class ClientController {
         return ClientMapper.toDTO(saved);
     }
 
+    @Operation(summary = "Actualizar los datos de un cliente")
     @PutMapping("/{id}")
     public ClientResponseDTO updateClient(@PathVariable Long id, @Valid @RequestBody ClientRequestDTO dto) {
         // Le pasamos el ID y el DTO directamente al servicio
@@ -41,6 +45,7 @@ public class ClientController {
         return ClientMapper.toDTO(updated);
     }
 
+    @Operation(summary = "Elimina un cliente")
     @DeleteMapping("/{id}")
     public void deleteClient(@PathVariable Long id) {
         service.delete(id);
@@ -54,6 +59,7 @@ public class ClientController {
                 .toList();
     }
 
+    @Operation(summary = "Obtener un cliente por id")
     @GetMapping("/{id}")
     public ClientResponseDTO getClientById(@PathVariable Long id){
         Client client = service.findById(id);

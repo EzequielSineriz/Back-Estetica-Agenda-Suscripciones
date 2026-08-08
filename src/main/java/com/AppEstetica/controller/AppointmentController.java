@@ -7,6 +7,7 @@ import com.AppEstetica.entities.Appointment;
 import com.AppEstetica.service.Turnos.AppointmentService;
 import com.AppEstetica.service.Cliente.ClientService;
 import com.AppEstetica.utils.Mappers.AppointmentMapper;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Clientes", description = "Gestión de clientes de la estética")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/appointments")
