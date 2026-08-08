@@ -2,6 +2,8 @@
 
 API REST para la gestión de una estética: turnos, clientes y usuarios, con autenticación JWT. Backend del sistema compuesto por la [landing + agenda virtual](https://healthestetica.com) en Angular.
 
+- Github Frontend: https://github.com/EzequielSineriz/AgendaVirtual-y-Landing
+
 ## Stack
 
 - **Java 21** + **Spring Boot 3.5.5**
