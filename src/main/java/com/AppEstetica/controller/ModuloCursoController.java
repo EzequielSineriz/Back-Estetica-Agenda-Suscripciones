@@ -3,6 +3,7 @@ package com.AppEstetica.controller;
 import com.AppEstetica.dto.request.ModuloCursoRequestDTO;
 import com.AppEstetica.dto.response.ModuloCursoResponseDTO;
 import com.AppEstetica.service.Cursos.IModuloCursoService;
+import com.AppEstetica.service.Cursos.ModuloCursoService;
 import com.AppEstetica.utils.Mappers.ModuloCursoMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ModuloCursoController {
 
-    private final IModuloCursoService service;
+    private final ModuloCursoService service;
 
     @Operation(summary = "Listar los módulos de un curso")
     @GetMapping("/cursos/{cursoId}/modulos")
