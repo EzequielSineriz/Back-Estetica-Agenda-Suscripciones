@@ -6,7 +6,7 @@ import com.AppEstetica.dto.response.ModuloCursoResponseDTO;
 import com.AppEstetica.entities.EstadoPago;
 import com.AppEstetica.entities.User;
 import com.AppEstetica.repository.InscripcionCursoRepository;
-import com.AppEstetica.service.Cursos.IModuloCursoService;
+
 import com.AppEstetica.service.Cursos.ModuloCursoService;
 import com.AppEstetica.utils.Mappers.ModuloCursoMapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,13 +27,7 @@ public class ModuloCursoController {
 
     private final ModuloCursoService service;
     private final InscripcionCursoRepository inscripcionRepository;
-
-
-    @Operation(summary = "Listar los módulos de un curso")
-    @GetMapping("/cursos/{cursoId}/modulos")
-    public List<ModuloCursoResponseDTO> listar(@PathVariable Long cursoId) {
-        return service.getByCurso(cursoId).stream().map(ModuloCursoMapper::toDTO).toList();
-    }
+    
 
     @Operation(summary = "Listar los módulos de un curso",
             description = "Solo visible para ADMIN o para quien ya pagó ese curso puntual")
