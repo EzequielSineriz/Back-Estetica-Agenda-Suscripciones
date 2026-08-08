@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/pagos")
@@ -24,8 +25,6 @@ public class PagoWebhookController {
             try {
                 pagoService.procesarNotificacion(paymentId);
             } catch (Exception e) {
-                // Logueamos pero NO relanzamos: MercadoPago reintentaría innecesariamente
-                // si el problema es nuestro (ej. inscripción no encontrada) y no de la notificación en sí.
                 log.error("Error procesando webhook de pago {}: {}", paymentId, e.getMessage());
             }
         }
