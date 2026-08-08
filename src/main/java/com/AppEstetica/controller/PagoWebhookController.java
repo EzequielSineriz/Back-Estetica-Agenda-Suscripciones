@@ -2,12 +2,13 @@ package com.AppEstetica.controller;
 
 import com.AppEstetica.service.Pagos.PagoService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+@Slf4j
 @RestController
 @RequestMapping("/api/pagos")
 @RequiredArgsConstructor
@@ -20,8 +21,14 @@ public class PagoWebhookController {
             @RequestParam(name = "id", required = false) String paymentId) {
 
         if ("payment".equals(topic) && paymentId != null) {
-            pagoService.procesarNotificacion(paymentId);
+            try {
+                pagoService.procesarNotificacion(paymentId);
+            } catch (Exception e) {
+                // Logueamos pero NO relanzamos: MercadoPago reintentaría innecesariamente
+                // si el problema es nuestro (ej. inscripción no encontrada) y no de la notificación en sí.
+                log.error("Error procesando webhook de pago {}: {}", paymentId, e.getMessage());
+            }
         }
-        return ResponseEntity.ok().build(); // siempre 200, o MercadoPago reintenta indefinidamente
+        return ResponseEntity.ok().build();
     }
 }
