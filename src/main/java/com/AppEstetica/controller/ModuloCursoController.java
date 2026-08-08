@@ -2,6 +2,9 @@ package com.AppEstetica.controller;
 
 import com.AppEstetica.dto.request.ModuloCursoRequestDTO;
 import com.AppEstetica.dto.response.ModuloCursoResponseDTO;
+import com.AppEstetica.entities.EstadoPago;
+import com.AppEstetica.entities.User;
+import com.AppEstetica.repository.InscripcionCursoRepository;
 import com.AppEstetica.service.Cursos.IModuloCursoService;
 import com.AppEstetica.service.Cursos.ModuloCursoService;
 import com.AppEstetica.utils.Mappers.ModuloCursoMapper;
@@ -10,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +25,8 @@ import java.util.List;
 public class ModuloCursoController {
 
     private final ModuloCursoService service;
+    private final InscripcionCursoRepository inscripcionRepository;
+
 
     @Operation(summary = "Listar los módulos de un curso")
     @GetMapping("/cursos/{cursoId}/modulos")
@@ -28,11 +34,24 @@ public class ModuloCursoController {
         return service.getByCurso(cursoId).stream().map(ModuloCursoMapper::toDTO).toList();
     }
 
-    @Operation(summary = "Agregar un módulo a un curso", description = "Solo ADMIN")
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/cursos/{cursoId}/modulos")
-    public ModuloCursoResponseDTO crear(@PathVariable Long cursoId, @Valid @RequestBody ModuloCursoRequestDTO dto) {
-        return ModuloCursoMapper.toDTO(service.crear(cursoId, dto));
+    @Operation(summary = "Listar los módulos de un curso",
+            description = "Solo visible para ADMIN o para quien ya pagó ese curso puntual")
+    @GetMapping("/cursos/{cursoId}/modulos")
+    public List<ModuloCursoResponseDTO> listar(@PathVariable Long cursoId, @AuthenticationPrincipal User usuario) {
+
+        boolean esAdmin = usuario.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!esAdmin) {
+            boolean tieneAcceso = inscripcionRepository
+                    .existsByUsuarioIdAndCursoIdAndEstado(usuario.getId(), cursoId, EstadoPago.APROBADO);
+
+            if (!tieneAcceso) {
+                throw new ForbiddenException("Necesitás haber comprado este curso para ver su contenido");
+            }
+        }
+
+        return service.getByCurso(cursoId).stream().map(ModuloCursoMapper::toDTO).toList();
     }
 
     @Operation(summary = "Editar un módulo", description = "Solo ADMIN")

@@ -32,6 +32,7 @@ public class CursoController {
     }
 
     @Operation(summary = "Crear un curso nuevo", description = "Prueba")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public CursoResponseDTO crear(@Valid @RequestBody CursoRequestDTO dto) {
         return CursoMapper.toDTO(service.crear(dto));

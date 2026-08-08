@@ -77,4 +77,10 @@ public class GlobalExceptionHandler {
         response.put("status", status.value());
         return new ResponseEntity<>(response, status);
     }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<Map<String, Object>> handleForbidden(ForbiddenException ex) {
+        log.warn("Acceso denegado: {}", ex.getMessage());
+        return build(HttpStatus.FORBIDDEN, ex.getMessage());
+    }
 }
