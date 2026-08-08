@@ -31,8 +31,7 @@ public class CursoController {
         return service.getDisponibles().stream().map(CursoMapper::toDTO).toList();
     }
 
-    @Operation(summary = "Crear un curso nuevo", description = "Solo ADMIN")
-    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Crear un curso nuevo", description = "Prueba")
     @PostMapping
     public CursoResponseDTO crear(@Valid @RequestBody CursoRequestDTO dto) {
         return CursoMapper.toDTO(service.crear(dto));
