@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -33,7 +36,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        // ⛔ Ignorar rutas del H2 Console
         if (request.getServletPath().startsWith("/h2-console")) {
             filterChain.doFilter(request, response);
             return;
@@ -41,34 +43,43 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.warn("Request a {} sin header Authorization Bearer", request.getServletPath());
             filterChain.doFilter(request, response);
             return;
         }
 
         final String jwt = authHeader.substring(7);
-        final String userEmail = jwtService.extractUsername(jwt); // <-- EMAIL desde el token
+        final String userEmail = jwtService.extractUsername(jwt);
 
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (userEmail == null) {
+            log.warn("No se pudo extraer el email del JWT (firma inválida o token malformado)");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
             User user = userRepository.findByEmail(userEmail).orElse(null);
 
+            if (user == null) {
+                log.warn("JWT válido pero el usuario '{}' no existe en la base", userEmail);
+                filterChain.doFilter(request, response);
+                return;
+            }
 
             if (jwtService.isTokenValid(jwt, user)) {
-                if (user == null) {
-                    filterChain.doFilter(request, response);
-                    return;
-                }
-                User userDetails = user;
-
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
-                                userDetails,
+                                user,
                                 null,
-                                userDetails.getAuthorities() // <-- Acá asigna roles ROLE_ADMIN
+                                user.getAuthorities()
                         );
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+                log.info("Usuario '{}' autenticado correctamente con authorities: {}", userEmail, user.getAuthorities());
+            } else {
+                log.warn("Token inválido o expirado para el usuario '{}'", userEmail);
             }
         }
 
