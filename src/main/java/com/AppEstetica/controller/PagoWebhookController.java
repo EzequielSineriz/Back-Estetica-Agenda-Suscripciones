@@ -1,6 +1,7 @@
 package com.AppEstetica.controller;
 
 import com.AppEstetica.service.Pagos.PagoService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+@Tag(name = "Pagos", description = "Service de los webhook, recepcion de notificaciones")
 @Slf4j
 @RestController
 @RequestMapping("/api/pagos")

@@ -11,11 +11,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Tag(name = "Clientes", description = "Gestión de clientes de la estética")
+@PreAuthorize("hasRole('ADMIN')")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/appointments")
