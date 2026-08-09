@@ -26,7 +26,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ClientController {
 
-    private final IClientService service; 
+    private final IClientService service;
 
     @Operation(summary = "Listar todos los clientes (paginado)")
     @GetMapping
