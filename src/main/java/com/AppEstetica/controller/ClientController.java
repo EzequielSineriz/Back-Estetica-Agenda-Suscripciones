@@ -4,7 +4,7 @@ import com.AppEstetica.dto.request.ClientRequestDTO;
 import com.AppEstetica.dto.response.AppointmentResponseDTO;
 import com.AppEstetica.dto.response.ClientResponseDTO;
 import com.AppEstetica.entities.Client;
-import com.AppEstetica.service.Cliente.ClientService;
+import com.AppEstetica.service.Cliente.IClientService; // 👈 Inyectamos la Interfaz
 import com.AppEstetica.utils.Mappers.AppointmentMapper;
 import com.AppEstetica.utils.Mappers.ClientMapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,14 +18,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-@Tag(name = "Clientes", description = "Administracion de clientes")
+
+@Tag(name = "Clientes", description = "Administración de clientes")
 @PreAuthorize("hasRole('ADMIN')")
 @RestController
 @RequestMapping("/api/clients")
 @AllArgsConstructor
 public class ClientController {
-    private final ClientService service;
 
+    private final IClientService service; 
 
     @Operation(summary = "Listar todos los clientes (paginado)")
     @GetMapping
@@ -45,17 +46,17 @@ public class ClientController {
     @Operation(summary = "Actualizar los datos de un cliente")
     @PutMapping("/{id}")
     public ClientResponseDTO updateClient(@PathVariable Long id, @Valid @RequestBody ClientRequestDTO dto) {
-        // Le pasamos el ID y el DTO directamente al servicio
         var updated = service.update(id, dto);
         return ClientMapper.toDTO(updated);
     }
 
-    @Operation(summary = "Elimina un cliente")
+    @Operation(summary = "Eliminar un cliente")
     @DeleteMapping("/{id}")
     public void deleteClient(@PathVariable Long id) {
         service.delete(id);
     }
 
+    @Operation(summary = "Obtener historial de turnos de un cliente")
     @GetMapping("/{id}/appointments")
     public List<AppointmentResponseDTO> getClientHistory(@PathVariable Long id) {
         Client client = service.findById(id);
@@ -66,7 +67,7 @@ public class ClientController {
 
     @Operation(summary = "Obtener un cliente por id")
     @GetMapping("/{id}")
-    public ClientResponseDTO getClientById(@PathVariable Long id){
+    public ClientResponseDTO getClientById(@PathVariable Long id) {
         Client client = service.findById(id);
         return ClientMapper.toDTO(client);
     }
