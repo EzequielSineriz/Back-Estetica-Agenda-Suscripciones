@@ -27,7 +27,7 @@ public class ModuloCursoController {
 
     private final ModuloCursoService service;
     private final InscripcionCursoRepository inscripcionRepository;
-    
+
 
     @Operation(summary = "Listar los módulos de un curso",
             description = "Solo visible para ADMIN o para quien ya pagó ese curso puntual")

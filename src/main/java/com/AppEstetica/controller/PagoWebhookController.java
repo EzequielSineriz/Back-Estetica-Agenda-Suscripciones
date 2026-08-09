@@ -30,7 +30,6 @@ public class PagoWebhookController {
 
     @PostMapping("/webhook")
     public ResponseEntity<Void> recibirNotificacion(
-            HttpServletRequest request,
             @RequestParam(required = false) String topic,
             @RequestParam(name = "id", required = false) String id,
             @RequestParam(name = "type", required = false) String type,
