@@ -4,6 +4,7 @@ import com.AppEstetica.advice.ResourceNotFoundException;
 import com.AppEstetica.dto.request.ClientRequestDTO;
 import com.AppEstetica.entities.Client;
 import com.AppEstetica.repository.ClientRepository;
+import com.AppEstetica.utils.Mappers.ClientMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,11 +26,14 @@ public class ClientService implements IClientService {
 
     @Override
     @Transactional
-    public Client save(Client c) {
-        if (c.getAvatarUrl() == null || c.getAvatarUrl().isBlank()) {
-            c.setAvatarUrl("woman1");
+    public Client crear(ClientRequestDTO dto) {
+        Client cliente = ClientMapper.toEntity(dto);
+
+        if (cliente.getAvatarUrl() == null || cliente.getAvatarUrl().isBlank()) {
+            cliente.setAvatarUrl("woman1");
         }
-        return repo.save(c);
+
+        return repo.save(cliente);
     }
 
     @Override
@@ -39,6 +43,7 @@ public class ClientService implements IClientService {
 
         existingClient.setName(dto.getName());
         existingClient.setPhone(dto.getPhone());
+        existingClient.setEmail(dto.getEmail());
         if (dto.getAvatarUrl() != null && !dto.getAvatarUrl().isBlank()) {
             existingClient.setAvatarUrl(dto.getAvatarUrl());
         }

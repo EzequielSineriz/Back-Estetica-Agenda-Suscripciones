@@ -24,4 +24,6 @@ public class ClientRequestDTO {
 
    private String avatarUrl;
 
+   private String email;
+
 }

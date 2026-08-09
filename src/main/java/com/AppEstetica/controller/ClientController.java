@@ -38,9 +38,7 @@ public class ClientController {
     @Operation(summary = "Crear un cliente nuevo")
     @PostMapping
     public ClientResponseDTO createClient(@Valid @RequestBody ClientRequestDTO dto) {
-        var client = ClientMapper.toEntity(dto);
-        var saved = service.save(client);
-        return ClientMapper.toDTO(saved);
+        return ClientMapper.toDTO(service.crear(dto));
     }
 
     @Operation(summary = "Actualizar los datos de un cliente")

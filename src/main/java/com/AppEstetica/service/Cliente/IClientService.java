@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 public interface IClientService {
 
     Page<Client> getAll(Pageable pageable);
-    Client save(Client c);
+    Client crear(ClientRequestDTO dto);
     Client update(Long id, ClientRequestDTO dto);
     void delete(Long id);
     Client findById(Long id);

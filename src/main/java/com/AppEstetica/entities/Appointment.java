@@ -47,6 +47,9 @@ public class Appointment extends AuditableEntity {
     @Column(nullable = false)
     private BigDecimal montoPagado;
 
+    @Builder.Default
+    private Boolean recordatorioEnviado = false;
+
     @Enumerated(EnumType.STRING)
     @Column(name= "status", length = 30)
     private AppointmentStatus status;

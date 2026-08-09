@@ -17,4 +17,5 @@ public class ClientResponseDTO {
     private LocalDateTime lastVisit;
     private String avatarUrl;
     private int totalVisits;
+    private String email;
 }

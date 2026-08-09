@@ -20,11 +20,12 @@ public class Client extends AuditableEntity {
 
     private String name;
     private String phone;
-    private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime lastVisit;
     private String avatarUrl;
     private int totalVisits;
+    private String email;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Appointment> appointments;
+
 }
