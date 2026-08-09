@@ -6,6 +6,8 @@ import com.AppEstetica.entities.Client;
 import com.AppEstetica.repository.ClientRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,7 +19,10 @@ public class ClientService implements IClientService{
     private final ClientRepository repo;
 
 
-    public List<Client> getAll() { return repo.findAll(); }
+    public Page<Client> getAll(Pageable pageable) {
+        return repo.findAll(pageable);
+    }
+
     public Client save(Client c) {
         if(c.getAvatarUrl() == null) c.setAvatarUrl("woman1");
         return repo.save(c); }

@@ -11,6 +11,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,12 +27,11 @@ public class ClientController {
     private final ClientService service;
 
 
-    @Operation(summary = "Listar todos los clientes")
+    @Operation(summary = "Listar todos los clientes (paginado)")
     @GetMapping
-    public List<ClientResponseDTO> getClients() {
-        return service.getAll().stream()
-                .map(ClientMapper::toDTO)
-                .toList();
+    public Page<ClientResponseDTO> getClients(
+            @PageableDefault(size = 20, sort = "name") Pageable pageable) {
+        return service.getAll(pageable).map(ClientMapper::toDTO);
     }
 
     @Operation(summary = "Crear un cliente nuevo")

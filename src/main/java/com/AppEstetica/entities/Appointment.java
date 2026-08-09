@@ -14,6 +14,10 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "appointments", indexes = {
+        @Index(name = "idx_appointments_client_id", columnList = "client_id"),
+        @Index(name = "idx_appointments_date", columnList = "date")
+})
 public class Appointment extends AuditableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

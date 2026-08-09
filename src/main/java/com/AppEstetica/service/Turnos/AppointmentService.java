@@ -9,6 +9,8 @@ import com.AppEstetica.entities.Client;
 import com.AppEstetica.repository.AppointmentRepository;
 import com.AppEstetica.service.Cliente.ClientService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,8 +25,8 @@ public class AppointmentService implements IAppointmentService {
     private final AppointmentRepository repo;
     private final ClientService clientService;
 
-    public List<Appointment> getAll() {
-        return repo.findAll();
+    public Page<Appointment> getAll(Pageable pageable) {
+        return repo.findAll(pageable);
     }
 
     public Appointment getById(Long id) {
