@@ -7,6 +7,7 @@ import com.AppEstetica.repository.AppointmentRepository;
 import com.AppEstetica.repository.CursoRespository;
 import com.AppEstetica.repository.InscripcionCursoRepository;
 import com.AppEstetica.repository.UserRepository;
+import com.AppEstetica.service.Notificaciones.EmailNotificationService;
 import com.mercadopago.MercadoPagoConfig;
 import com.mercadopago.client.payment.PaymentClient;
 import com.mercadopago.client.preference.PreferenceBackUrlsRequest;
@@ -33,6 +34,7 @@ public class PagoService {
     private final InscripcionCursoRepository inscripcionRepository;
     private final AppointmentRepository appointmentRepository;
     private final UserRepository userRepository;
+    private final EmailNotificationService emailNotificationService; // 👈 Inyección del servicio
 
     @Value("${mercadopago.access-token}")
     private String accessToken;
@@ -134,6 +136,9 @@ public class PagoService {
     public void procesarNotificacion(String paymentId) {
         try {
             Payment payment = new PaymentClient().get(Long.parseLong(paymentId));
+
+            if (payment.getExternalReference() == null) return;
+
             Long inscripcionId = Long.parseLong(payment.getExternalReference());
 
             InscripcionCurso inscripcion = inscripcionRepository.findById(inscripcionId)
@@ -145,12 +150,25 @@ public class PagoService {
                 return;
             }
 
+            EstadoPago nuevoEstado = mapearEstado(payment.getStatus());
+
             inscripcion.setMercadoPagoPaymentId(payment.getId().toString());
             inscripcion.setEstado(mapearEstado(payment.getStatus()));
             inscripcionRepository.save(inscripcion);
 
+            if (nuevoEstado == EstadoPago.APROBADO) {
+                emailNotificationService.enviarConfirmacionCurso(
+                        inscripcion.getUsuario().getEmail(),
+                        inscripcion.getUsuario().getUsername(), // O getFirstname() según tu entity User
+                        inscripcion.getCurso().getNombre(),
+                        inscripcion.getCurso().getId()
+                );
+            }
+
+        } catch (NumberFormatException e) {
+            // Ignorar notificaciones que no pertenezcan a IDs numéricos de inscripción
         } catch (MPApiException | MPException e) {
-            throw new RuntimeException("Error procesando notificación de pago", e);
+            throw new RuntimeException("Error consultando el pago en Mercado Pago", e);
         }
     }
 

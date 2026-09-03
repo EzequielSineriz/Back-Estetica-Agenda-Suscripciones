@@ -21,7 +21,7 @@ public class EmailNotificationService {
     private static final DateTimeFormatter FECHA_LEGIBLE = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter HORA_LEGIBLE = DateTimeFormatter.ofPattern("HH:mm");
 
-    public void enviarRecordatorio(Appointment appointment) {
+    public void enviarRecordatorioTurno(Appointment appointment) {
         String email = appointment.getClient().getEmail();
         if (email == null || email.isBlank()) {
             return; // sin email, no hay nada que mandar -- no es un error
@@ -61,6 +61,35 @@ public class EmailNotificationService {
 
         } catch (Exception e) {
             log.error("Error enviando email de recordatorio para turno {}: {}", appointment.getId(), e.getMessage());
+        }
+    }
+
+    public void enviarConfirmacionCurso(String email, String nombreUsuario, String nombreCurso, Long cursoId) {
+        if (email == null || email.isBlank()) return;
+
+        try {
+            MimeMessage mensaje = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mensaje, true, "UTF-8");
+
+            helper.setTo(email);
+            helper.setSubject("¡Inscripción confirmada! - " + nombreCurso);
+            helper.setText("""
+                Hola %s,
+
+                ¡Tu pago fue procesado con éxito! Ya tenés acceso completo al curso: **%s**.
+
+                Podés acceder a tus módulos y contenidos directamente desde nuestra plataforma:
+                https://www.tuappweb.com/academy/curso/%d
+
+                ¡Gracias por sumarte!
+                Health Estética
+                """.formatted(nombreUsuario, nombreCurso, cursoId), true); // true para interpretar HTML simple si querés dar formato
+
+            mailSender.send(mensaje);
+            log.info("Email de confirmación de curso enviado a {} para el curso {}", email, cursoId);
+
+        } catch (Exception e) {
+            log.error("Error enviando email de confirmación de curso a {}: {}", email, e.getMessage());
         }
     }
 }
