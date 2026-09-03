@@ -6,16 +6,12 @@ import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
-public record CursoRequestDTO (
-        @NotBlank
-        String nombre,
-
-
+public record CursoRequestDTO(
+        @NotBlank String nombre,
         String descripcion,
-
-        @NotNull
-        @Positive
-        BigDecimal precio
-
-){
-}
+        String imagenUrl,
+        String modalidad,
+        String instructor,
+        String incluye,
+        @NotNull @Positive BigDecimal precio
+) {}

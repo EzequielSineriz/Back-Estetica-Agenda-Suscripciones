@@ -34,4 +34,12 @@ public class Curso extends AuditableEntity{
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("orden ASC")
     private List<ModuloCurso> modulos;
+
+    // Curso.java — agregar estos campos
+    private String imagenUrl;        // portada del curso
+    private String modalidad;        // "100% online" / "Presencial"
+    private String instructor;          // "Lic. [nombre de la esteticista]"
+
+    @Column(columnDefinition = "TEXT")
+    private String incluye;
 }

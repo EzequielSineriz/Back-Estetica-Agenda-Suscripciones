@@ -31,6 +31,12 @@ public class CursoController {
         return service.getDisponibles().stream().map(CursoMapper::toDTO).toList();
     }
 
+    @Operation(summary = "Obtener el detalle de un curso")
+    @GetMapping("/{id}")
+    public CursoResponseDTO getById(@PathVariable Long id) {
+        return CursoMapper.toDTO(service.getById(id));
+    }
+
     @Operation(summary = "Crear un curso nuevo", description = "Prueba")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping

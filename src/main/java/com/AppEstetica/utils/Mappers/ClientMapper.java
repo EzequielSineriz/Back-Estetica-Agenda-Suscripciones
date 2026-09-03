@@ -18,7 +18,6 @@ public class ClientMapper {
         dto.setId(entity.getId());
         dto.setName(entity.getName());
         dto.setPhone(entity.getPhone());
-        dto.setCreatedAt(entity.getCreatedAt());
         dto.setLastVisit(entity.getLastVisit());
         dto.setAvatarUrl(entity.getAvatarUrl());
         dto.setTotalVisits(entity.getTotalVisits());

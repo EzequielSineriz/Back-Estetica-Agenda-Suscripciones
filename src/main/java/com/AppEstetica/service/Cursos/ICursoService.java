@@ -12,4 +12,6 @@ public interface ICursoService {
 
     Curso crear(CursoRequestDTO dto);
 
+    Curso getById(Long id);
+
 }

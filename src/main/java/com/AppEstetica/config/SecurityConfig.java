@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/api/pagos/webhook").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/cursos/*").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/cursos").permitAll()
                 .anyRequest().authenticated()
         );
