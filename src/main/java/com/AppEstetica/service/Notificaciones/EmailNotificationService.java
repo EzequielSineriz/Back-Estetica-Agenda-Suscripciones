@@ -1,95 +1,63 @@
 package com.AppEstetica.service.Notificaciones;
 
-import com.AppEstetica.entities.Appointment;
-import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 
-import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class EmailNotificationService {
 
-    private final JavaMailSender mailSender;
-    private final IcsGenerator icsGenerator;
+    private final RestClient restClient = RestClient.create("https://api.resend.com");
 
-    private static final DateTimeFormatter FECHA_LEGIBLE = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    private static final DateTimeFormatter HORA_LEGIBLE = DateTimeFormatter.ofPattern("HH:mm");
-
-    public void enviarRecordatorioTurno(Appointment appointment) {
-        String email = appointment.getClient().getEmail();
-        if (email == null || email.isBlank()) {
-            return; // sin email, no hay nada que mandar -- no es un error
-        }
-
-        try {
-            MimeMessage mensaje = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mensaje, true, "UTF-8");
-
-            helper.setTo(email);
-            helper.setSubject("Recordatorio de tu turno mañana - Health Estética");
-            helper.setText("""
-                    Hola %s,
-
-                    Te recordamos tu turno para mañana:
-
-                    Servicio: %s
-                    Fecha: %s
-                    Hora: %s
-
-                    Adjuntamos un archivo para que puedas agendarlo directo en tu Google Calendar
-                    (abrí el archivo adjunto y elegí "Agregar a mi calendario").
-
-                    ¡Te esperamos!
-                    Health Estética
-                    """.formatted(
-                    appointment.getClient().getName(),
-                    appointment.getService(),
-                    appointment.getDate().format(FECHA_LEGIBLE),
-                    appointment.getTime().format(HORA_LEGIBLE)
-            ));
-
-            helper.addAttachment("turno.ics", () -> new java.io.ByteArrayInputStream(icsGenerator.generar(appointment)));
-
-            mailSender.send(mensaje);
-            log.info("Email de recordatorio enviado a {} para turno {}", email, appointment.getId());
-
-        } catch (Exception e) {
-            log.error("Error enviando email de recordatorio para turno {}: {}", appointment.getId(), e.getMessage());
-        }
-    }
+    @Value("${resend.api-key}") // Cargar desde variable de entorno RESEND_API_KEY
+    private String apiKey;
 
     public void enviarConfirmacionCurso(String email, String nombreUsuario, String nombreCurso, Long cursoId) {
         if (email == null || email.isBlank()) return;
 
+        String htmlContent = """
+            <!DOCTYPE html>
+            <html>
+            <body style="font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px;">
+                <div style="max-width: 500px; margin: 0 auto; background: #ffffff; padding: 30px; border-radius: 12px;">
+                    <h2 style="color: #d946ef; text-align: center;">¡Pago Confirmado! 🎉</h2>
+                    <p>Hola <strong>%s</strong>,</p>
+                    <p>Tu inscripción al curso <strong>%s</strong> se procesó exitosamente.</p>
+                    <p>Ya podés ingresar a la plataforma para ver los módulos:</p>
+                    <a href="https://www.healthestetica.com/academy/curso/%d" 
+                       style="display: block; width: 200px; margin: 20px auto; padding: 12px; background: #d946ef; color: #ffffff; text-align: center; text-decoration: none; font-weight: bold; border-radius: 8px;">
+                       Acceder al Curso
+                    </a>
+                </div>
+            </body>
+            </html>
+            """.formatted(nombreUsuario, nombreCurso, cursoId);
+
+        Map<String, Object> body = Map.of(
+                "from", "Health Estética <onboarding@resend.dev>", // Dirección por defecto de prueba en Resend
+                "to", new String[]{email},
+                "subject", "¡Inscripción confirmada! - " + nombreCurso,
+                "html", htmlContent
+        );
+
         try {
-            MimeMessage mensaje = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mensaje, true, "UTF-8");
+            restClient.post()
+                    .uri("/emails")
+                    .header("Authorization", "Bearer " + apiKey)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(body)
+                    .retrieve()
+                    .toBodilessEntity();
 
-            helper.setTo(email);
-            helper.setSubject("¡Inscripción confirmada! - " + nombreCurso);
-            helper.setText("""
-                Hola %s,
-
-                ¡Tu pago fue procesado con éxito! Ya tenés acceso completo al curso: **%s**.
-
-                Podés acceder a tus módulos y contenidos directamente desde nuestra plataforma:
-                https://www.tuappweb.com/academy/curso/%d
-
-                ¡Gracias por sumarte!
-                Health Estética
-                """.formatted(nombreUsuario, nombreCurso, cursoId), true); // true para interpretar HTML simple si querés dar formato
-
-            mailSender.send(mensaje);
-            log.info("Email de confirmación de curso enviado a {} para el curso {}", email, cursoId);
+            log.info("Email enviado exitosamente vía Resend API a {}", email);
 
         } catch (Exception e) {
-            log.error("Error enviando email de confirmación de curso a {}: {}", email, e.getMessage());
+            log.error("Error enviando email vía Resend API a {}: {}", email, e.getMessage());
         }
     }
 }
