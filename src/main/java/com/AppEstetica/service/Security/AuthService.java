@@ -75,14 +75,8 @@ public class AuthService {
         final User user = repository.findByEmail(request.email())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
-        final String accessToken = jwtService.generateToken(user);
-        final String refreshToken = jwtService.generateRefreshToken(user);
 
-        revokeAllUserTokens(user);
-        saveUserToken(user, accessToken, Token.TokenType.BEARER);
-        saveUserToken(user, refreshToken, Token.TokenType.REFRESH);
-        return new TokenResponse(accessToken, refreshToken, user.getUsername(),
-                user.getEmail(), user.getRoles());
+        return generateTokensForUser(user);
     }
 
     private void saveUserToken(User user, String jwtToken,Token.TokenType tokenType) {
@@ -131,6 +125,26 @@ public class AuthService {
 
         return new TokenResponse(newAccessToken, refreshToken, user.getUsername(),
                 user.getEmail(), user.getRoles());
+    }
+
+
+    public TokenResponse generateTokensForUser(User user) {
+
+        final String accessToken = jwtService.generateToken(user);
+        final String refreshToken = jwtService.generateRefreshToken(user);
+
+        revokeAllUserTokens(user);
+
+        saveUserToken(user, accessToken, Token.TokenType.BEARER);
+        saveUserToken(user, refreshToken, Token.TokenType.REFRESH);
+
+        return new TokenResponse(
+                accessToken,
+                refreshToken,
+                user.getUsername(),
+                user.getEmail(),
+                user.getRoles()
+        );
     }
 
 }

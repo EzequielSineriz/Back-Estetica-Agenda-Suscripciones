@@ -32,7 +32,7 @@ public class RecordatorioTurnoScheduler {
 
         for (Appointment turno : turnos) {
             try {
-                
+
                 whatsAppService.enviarRecordatorio(turno);
 
                 turno.setRecordatorioEnviado(true);

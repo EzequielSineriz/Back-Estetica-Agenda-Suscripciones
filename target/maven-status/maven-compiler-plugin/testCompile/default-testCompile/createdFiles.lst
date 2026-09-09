@@ -1,2 +1,10 @@
+com\AppEstetica\service\Turnos\AppointmentServiceTest$RegistrarPagoSena.class
+com\AppEstetica\service\Turnos\AppointmentServiceTest.class
 com\AppEstetica\service\Pagos\WebhookSignatureValidatorTest.class
+com\AppEstetica\service\Turnos\AppointmentServiceTest$CompleteAppointment.class
+com\AppEstetica\service\Security\AuthServiceTest$RefreshToken.class
+com\AppEstetica\service\Turnos\AppointmentServiceTest$Update.class
+com\AppEstetica\service\Security\AuthServiceTest.class
+com\AppEstetica\service\Security\AuthServiceTest$Register.class
 com\AppEstetica\AppEsteticaApplicationTests.class
+com\AppEstetica\service\Turnos\AppointmentServiceTest$Create.class

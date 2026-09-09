@@ -45,6 +45,10 @@ public class User implements UserDetails {
     @JsonIgnore // evitar recursion en JSON
     private List<Token> tokens;
 
+    @Enumerated(EnumType.STRING)
+    private AuthProvider authProvider;
+
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

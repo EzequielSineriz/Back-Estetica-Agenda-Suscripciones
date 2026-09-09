@@ -29,6 +29,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
     private final TokenRepository tokenRepository;
+    private final GoogleOAuth2SuccessHandler googleOAuth2SuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -41,6 +42,7 @@ public class SecurityConfig {
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                 .requestMatchers("/api/pagos/webhook").permitAll()
                 .requestMatchers("/api/test/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/cursos/*").permitAll()
@@ -51,6 +53,8 @@ public class SecurityConfig {
         http.authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
+        http.oauth2Login(oauth2 -> oauth2
+                .successHandler(googleOAuth2SuccessHandler));
         return http.build();
     }
 
