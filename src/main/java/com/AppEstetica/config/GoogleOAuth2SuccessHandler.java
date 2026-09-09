@@ -1,5 +1,6 @@
 package com.AppEstetica.config;
 
+import com.AppEstetica.entities.AuthProvider;
 import com.AppEstetica.entities.Rol;
 import com.AppEstetica.entities.Token;
 import com.AppEstetica.entities.User;
@@ -89,6 +90,7 @@ public class GoogleOAuth2SuccessHandler
                 .username(username)
                 .email(email)
                 .roles(Set.of(Rol.CUSTOMER))
+                .authProvider(AuthProvider.GOOGLE)
                 .build();
 
         return userRepository.save(user);

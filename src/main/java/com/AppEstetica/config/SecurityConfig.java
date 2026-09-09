@@ -30,6 +30,7 @@ public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
     private final TokenRepository tokenRepository;
     private final GoogleOAuth2SuccessHandler googleOAuth2SuccessHandler;
+    private final LoginRateLimitFilter loginRateLimitFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -51,10 +52,18 @@ public class SecurityConfig {
         );
 
         http.authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(loginRateLimitFilter, UsernamePasswordAuthenticationFilter.class);
 
         http.oauth2Login(oauth2 -> oauth2
                 .successHandler(googleOAuth2SuccessHandler));
+
+        http.logout(logout -> logout
+                .logoutUrl("/auth/logout")
+                .addLogoutHandler(this::logout)
+                .logoutSuccessHandler((request, response, authentication) ->
+                        response.setStatus(HttpServletResponse.SC_OK)));
+
         return http.build();
     }
 

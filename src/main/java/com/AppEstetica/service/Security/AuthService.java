@@ -6,6 +6,7 @@ import com.AppEstetica.advice.ResourceNotFoundException;
 import com.AppEstetica.dto.request.AuthRequest;
 import com.AppEstetica.dto.request.RegisterRequest;
 import com.AppEstetica.dto.response.TokenResponse;
+import com.AppEstetica.entities.AuthProvider;
 import com.AppEstetica.entities.Rol;
 import com.AppEstetica.entities.Token;
 import com.AppEstetica.entities.User;
@@ -47,6 +48,7 @@ public class AuthService {
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .roles(Set.of(Rol.CUSTOMER))
+                .authProvider(AuthProvider.LOCAL)
                 .build();
         // Guardamos en bd
         final User savedUser = repository.save(user);
@@ -66,15 +68,16 @@ public class AuthService {
     }
 
     public TokenResponse authenticate(final AuthRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.email(), request.password())
-        );
-        // si las credenciales son inválidas, authenticate() ya tira BadCredentialsException sola
-        // -> no hace falta el try/catch, el GlobalExceptionHandler la traduce a 401
-
         final User user = repository.findByEmail(request.email())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
+        if (user.getAuthProvider() == AuthProvider.GOOGLE) {
+            throw new BadCredentialsException("Esta cuenta usa inicio de sesión con Google");
+        }
+
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.email(), request.password())
+        );
 
         return generateTokensForUser(user);
     }
