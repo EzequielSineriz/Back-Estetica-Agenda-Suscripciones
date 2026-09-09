@@ -174,6 +174,12 @@ Ambos envíos son best-effort e independientes entre sí: si al cliente le falta
 ```bash
 ./mvnw test
 ```
+### UML de entidades
+
+<img width="2234" height="5965" alt="relationships real large" src="https://github.com/user-attachments/assets/71d90bda-ed66-4e7c-90ae-e9d4d0d81951" />
+
+
+
 
 ## Roadmap
 
