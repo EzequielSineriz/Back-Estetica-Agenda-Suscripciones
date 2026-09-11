@@ -25,4 +25,15 @@ public class TestController {
         );
         return ResponseEntity.ok("Email de prueba enviado a " + emailDestino);
     }
+
+    @PostMapping("/email-admin")
+    public ResponseEntity<String> probarEmailAdmin() {
+        emailService.enviarAvisoAdmin(
+                "Willyberto",
+                "willyberto@example.com",
+                "Taller Hi-fu",
+                1L
+        );
+        return ResponseEntity.ok("Email de aviso a la administradora enviado");
+    }
 }

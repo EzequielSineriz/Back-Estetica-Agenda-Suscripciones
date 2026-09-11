@@ -7,7 +7,7 @@ import com.AppEstetica.repository.AppointmentRepository;
 import com.AppEstetica.repository.CursoRespository;
 import com.AppEstetica.repository.InscripcionCursoRepository;
 import com.AppEstetica.repository.UserRepository;
-import com.AppEstetica.service.Notificaciones.EmailNotificationService;
+import com.AppEstetica.event.CursoCompradoEvent;
 import com.mercadopago.MercadoPagoConfig;
 import com.mercadopago.client.payment.PaymentClient;
 import com.mercadopago.client.preference.PreferenceBackUrlsRequest;
@@ -21,6 +21,7 @@ import com.mercadopago.resources.preference.Preference;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -34,7 +35,7 @@ public class PagoService {
     private final InscripcionCursoRepository inscripcionRepository;
     private final AppointmentRepository appointmentRepository;
     private final UserRepository userRepository;
-    private final EmailNotificationService emailNotificationService; // 👈 Inyección del servicio
+    private final ApplicationEventPublisher eventPublisher; // 👈 antes era EmailNotificationService directo
 
     @Value("${mercadopago.access-token}")
     private String accessToken;
@@ -157,12 +158,13 @@ public class PagoService {
             inscripcionRepository.save(inscripcion);
 
             if (nuevoEstado == EstadoPago.APROBADO) {
-                emailNotificationService.enviarConfirmacionCurso(
+                eventPublisher.publishEvent(new CursoCompradoEvent(
                         inscripcion.getUsuario().getEmail(),
                         inscripcion.getUsuario().getUsername(), // O getFirstname() según tu entity User
                         inscripcion.getCurso().getNombre(),
-                        inscripcion.getCurso().getId()
-                );
+                        inscripcion.getCurso().getId(),
+                        inscripcion.getId()
+                ));
             }
 
         } catch (NumberFormatException e) {
