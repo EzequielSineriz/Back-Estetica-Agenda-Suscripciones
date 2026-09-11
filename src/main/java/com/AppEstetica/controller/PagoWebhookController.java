@@ -65,3 +65,18 @@ public class PagoWebhookController {
         return ResponseEntity.ok().build();
     }
 }
+
+/*
+
+{
+    "username": "PruebaCustomer",
+    "email": "PruebaCustomer@gmail.com",
+    "password": "Prueba123"
+}
+
+
+{
+    "initPoint": "https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=3594961038-3884753f-527d-4093-8aae-69eeeacd0ef3",
+    "inscripcionId": 6
+}
+ */

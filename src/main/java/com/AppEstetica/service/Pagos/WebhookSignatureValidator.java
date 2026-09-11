@@ -41,7 +41,10 @@ public class WebhookSignatureValidator {
                 if ("v1".equals(key)) hash = value;
             }
 
-            if (ts == null || hash == null) return false;
+            if (ts == null || hash == null) {
+                log.warn("[DEBUG-FIRMA] No se pudo parsear ts/v1 del header x-signature: '{}'", xSignature);
+                return false;
+            }
 
             String manifest = construirManifest(dataId, xRequestId, ts);
 
@@ -52,7 +55,13 @@ public class WebhookSignatureValidator {
             StringBuilder computed = new StringBuilder();
             for (byte b : rawHmac) computed.append(String.format("%02x", b));
 
-            return computed.toString().equals(hash);
+            boolean esValida = computed.toString().equals(hash);
+
+            // TODO: sacar este log una vez resuelto el problema de firma - expone datos de debug
+            log.warn("[DEBUG-FIRMA] manifest='{}' | secretLength={} | hashRecibido={} | hashCalculado={} | coincide={}",
+                    manifest, webhookSecret != null ? webhookSecret.length() : 0, hash, computed, esValida);
+
+            return esValida;
 
         } catch (Exception e) {
             log.error("Error validando firma de webhook", e);
