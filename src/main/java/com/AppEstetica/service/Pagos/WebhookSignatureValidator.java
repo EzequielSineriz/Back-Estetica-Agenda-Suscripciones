@@ -58,8 +58,12 @@ public class WebhookSignatureValidator {
             boolean esValida = computed.toString().equals(hash);
 
             // TODO: sacar este log una vez resuelto el problema de firma - expone datos de debug
-            log.warn("[DEBUG-FIRMA] manifest='{}' | secretLength={} | hashRecibido={} | hashCalculado={} | coincide={}",
-                    manifest, webhookSecret != null ? webhookSecret.length() : 0, hash, computed, esValida);
+            String secretPreview = webhookSecret == null ? "null"
+                    : webhookSecret.length() > 8
+                    ? webhookSecret.substring(0, 4) + "..." + webhookSecret.substring(webhookSecret.length() - 4)
+                    : "(muy corto: " + webhookSecret + ")";
+            log.warn("[DEBUG-FIRMA] manifest='{}' | secretPreview={} | secretLength={} | hashRecibido={} | hashCalculado={} | coincide={}",
+                    manifest, secretPreview, webhookSecret != null ? webhookSecret.length() : 0, hash, computed, esValida);
 
             return esValida;
 
